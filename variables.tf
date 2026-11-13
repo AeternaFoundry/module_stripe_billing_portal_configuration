@@ -69,5 +69,53 @@ EOT
     metadata = optional(map(string))
     name     = optional(string)
   }))
+  validation {
+    condition = alltrue([
+      for k, v in var.billing_portal_configurations : (
+        v.features.subscription_cancel == null || (v.features.subscription_cancel.mode == null || (contains(["at_period_end", "immediately"], v.features.subscription_cancel.mode)))
+      )
+    ])
+    error_message = "must be one of: \"at_period_end\", \"immediately\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.billing_portal_configurations : (
+        v.features.subscription_cancel == null || (v.features.subscription_cancel.proration_behavior == null || (contains(["always_invoice", "create_prorations", "none"], v.features.subscription_cancel.proration_behavior)))
+      )
+    ])
+    error_message = "must be one of: \"always_invoice\", \"create_prorations\", \"none\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.billing_portal_configurations : (
+        v.features.subscription_update == null || (v.features.subscription_update.billing_cycle_anchor == null || (contains(["now", "unchanged"], v.features.subscription_update.billing_cycle_anchor)))
+      )
+    ])
+    error_message = "must be one of: \"now\", \"unchanged\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.billing_portal_configurations : (
+        v.features.subscription_update == null || (v.features.subscription_update.proration_behavior == null || (contains(["always_invoice", "create_prorations", "none"], v.features.subscription_update.proration_behavior)))
+      )
+    ])
+    error_message = "must be one of: \"always_invoice\", \"create_prorations\", \"none\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.billing_portal_configurations : (
+        v.features.subscription_update == null || (v.features.subscription_update.schedule_at_period_end == null || (v.features.subscription_update.schedule_at_period_end.conditions == null || alltrue([for item in v.features.subscription_update.schedule_at_period_end.conditions : (contains(["decreasing_item_amount", "shortening_interval"], item.type))])))
+      )
+    ])
+    error_message = "must be one of: \"decreasing_item_amount\", \"shortening_interval\""
+  }
+  validation {
+    condition = alltrue([
+      for k, v in var.billing_portal_configurations : (
+        v.features.subscription_update == null || (v.features.subscription_update.trial_update_behavior == null || (contains(["continue_trial", "end_trial"], v.features.subscription_update.trial_update_behavior)))
+      )
+    ])
+    error_message = "must be one of: \"continue_trial\", \"end_trial\""
+  }
 }
 
